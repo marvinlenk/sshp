@@ -2,7 +2,7 @@
 
 # Function to display usage instructions
 usage() {
-    echo "Usage: $0 [-d] [-p PORT] [-r PORT_RANGE] [-m HOST] [-u USERNAME] [-s]"
+    echo "Usage: sshp [-d] [-p PORT] [-r PORT_RANGE] [-m HOST] [-u USERNAME] [-s]"
     echo "  -d              Direct connection (without jump host)"
     echo "  -p PORT         Port forwarding. Forward a single port."
     echo "  -r PORT_RANGE   Port range for port forwarding. Specify ports as XXXX-YYYY."
@@ -11,6 +11,7 @@ usage() {
     echo "  -u USERNAME     Username for SSH connection (default: current user)"
     echo "  -s              Disable password authentication"
     echo "  --help          Display this help message"
+    echo "Script location: $0"
 }
 
 # Check if "--help" argument is present
