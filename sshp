@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Function to display usage instructions
+usage() {
+    echo "Usage: $0 [-d] [-p PORT] [-r PORT_RANGE] [-m HOST] [-u USERNAME] [-s]"
+    echo "  -d              Direct connection (without jump host)"
+    echo "  -p PORT         Port forwarding. Forward a single port."
+    echo "  -r PORT_RANGE   Port range for port forwarding. Specify ports as XXXX-YYYY."
+    echo "  -t HOST         Hostname 'target' to connect to, default:desktop12.physik.uni-bonn.de"
+    echo "  -n HOST         Hostname 'login node' to tunnel through, default:desktop12.physik.uni-bonn.de"
+    echo "  -u USERNAME     Username for SSH connection (default: current user)"
+    echo "  -s              Disable password authentication"
+    echo "  --help          Display this help message"
+}
+
+# Check if "--help" argument is present
+if [[ "$*" == *"--help"* ]]; then
+    usage
+    exit 0
+fi
+
+ARGS=""
+DIRECT=false
+HADDR_LOGINNODE="desktop12.physik.uni-bonn.de"
+HADDR=$HADDR_LOGINNODE
+SSHUSER=$USER
+WITHPW=true
+PORT_RANGE=""
+
+while getopts dp:m:u:r:s opt; do
+    case $opt in
+        p) ARGS="$ARGS -L $OPTARG:localhost:$OPTARG";;
+        d) DIRECT=true;;
+        m) HADDR=$OPTARG;;
+        m) HADDR_LOGINNODE=$OPTARG;;
+        u) SSHUSER=$OPTARG;;
+        s) WITHPW=false;;
+        r) PORT_RANGE=$OPTARG;;
+        \?) echo "Invalid option: -$OPTARG" >&2; usage; exit 1;;
+    esac
+done
+
+# Function to handle port ranges
+handle_port_range() {
+    if [[ $PORT_RANGE =~ ^[0-9]+-[0-9]+$ ]]; then
+        START_PORT=$(echo "$PORT_RANGE" | cut -d'-' -f1)
+        END_PORT=$(echo "$PORT_RANGE" | cut -d'-' -f2)
+        for PORT in $(seq $START_PORT $END_PORT); do
+            ARGS="$ARGS -L $PORT:localhost:$PORT"
+        done
+    elif [[ $PORT_RANGE =~ ^[0-9]+$ ]]; then
+        ARGS="$ARGS -L $PORT_RANGE:localhost:$PORT_RANGE"
+    else
+        echo "Invalid port range format"
+        exit 1
+    fi
+}
+
+# Handle port range if specified
+if [[ -n $PORT_RANGE ]]; then
+    handle_port_range
+fi
+
+# Configure SSH options
+if $WITHPW ; then
+    SSHUSER="$SSHUSER:"
+    ARGS="-o GSSAPIDelegateCredentials=no $ARGS"
+fi
+
+# Execute SSH command
+if [[ "$DIRECT" == "true" ]] || [[ "$HADDR" == "$HADDR_LOGINNODE" ]] ; then
+    ssh -X "$SSHUSER@$HADDR" $ARGS
+else
+    ssh -X $ARGS -J "$SSHUSER@$HADDR_LOGINNODE" "$SSHUSER@$HADDR"
+fi
