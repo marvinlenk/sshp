@@ -32,8 +32,8 @@ while getopts dp:m:u:r:s opt; do
     case $opt in
         p) ARGS="$ARGS -L $OPTARG:localhost:$OPTARG";;
         d) DIRECT=true;;
-        m) HADDR=$OPTARG;;
-        m) HADDR_LOGINNODE=$OPTARG;;
+        t) HADDR=$OPTARG;;
+        n) HADDR_LOGINNODE=$OPTARG;;
         u) SSHUSER=$OPTARG;;
         s) WITHPW=false;;
         r) PORT_RANGE=$OPTARG;;
