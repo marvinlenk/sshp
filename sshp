@@ -28,7 +28,7 @@ SSHUSER=$USER
 WITHPW=true
 PORT_RANGE=""
 
-while getopts dp:m:u:r:s opt; do
+while getopts dp:t:u:r:s opt; do
     case $opt in
         p) ARGS="$ARGS -L $OPTARG:localhost:$OPTARG";;
         d) DIRECT=true;;
