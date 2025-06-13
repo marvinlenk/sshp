@@ -69,7 +69,7 @@ if $WITHPW ; then
 fi
 
 # Execute SSH command
-if [[ "$DIRECT" == "true" ]] || [[ "$HADDR" == "$HADDR_LOGINNODE" ]] ; then
+if [[ $DIRECT == "true" ]] || [[ $HADDR == $HADDR_LOGINNODE ]] ; then
     ssh -X "$SSHUSER@$HADDR" $ARGS
 else
     ssh -X $ARGS -J "$SSHUSER@$HADDR_LOGINNODE" "$SSHUSER@$HADDR"
